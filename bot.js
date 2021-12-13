@@ -29,8 +29,6 @@ client.on("message", function(message) {
     }else{
         message.reply("Tu sais lire batard !!! \n\nTape !command")
     }
-    //message.reply().id("883011422924181585");
-    //client.channels.cache.get("895615969819521034").send("Ferme ta Gueule ! ")
 });
 
 client.login(process.env.BOT_TOKEN);
