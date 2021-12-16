@@ -1,6 +1,6 @@
 {
   "name": "bot-discord",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "bot.js",
   "scripts": {
@@ -13,6 +13,5 @@
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
     "nodemon": "^2.0.15",
-    "yarn": "^1.22.17"
   }
 }
