@@ -8,4 +8,7 @@ module.exports = function() {
         )
         return isEmpty(body)
     }
+    this.addWine = function (message) {
+
+    }
 }

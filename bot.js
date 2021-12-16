@@ -1,10 +1,10 @@
 const dotenv = require("dotenv").config();
 const { Client, Intents } = require('discord.js');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
-const {isEmpty} = require('./function');
+const {isEmpty, add} = require('./function');
 const prefix = "!";
 
-client.on("message", function(message) {
+client.on("message", function(message) { //fonction de base
     if (message.author.bot) return;
     if (!message.content.startsWith(prefix)) return;
     if (message.channel.id != "919926282005909534") return;
@@ -27,6 +27,32 @@ client.on("message", function(message) {
 
         message.reply(userToIsolator+" "+isolatorRandom);
     }else{
+        message.reply("Tu sais lire batard !!! \n\nTape !command")
+    }
+});
+
+client.on("message", function (message){ //
+    if (message.author.bot) return;
+    if (!message.content.startsWith(prefix)) return;
+    if (message.channel.id != "920005239157981194") return;
+
+    const commandBody = message.content.slice(prefix.length);
+    const args = commandBody.split(' ');
+    const command = args.shift().toLowerCase();
+
+    if (command === "command") {
+        message.reply("**Liste des commandes :** \n\n" +
+            "!add : Liste les tâches que junior peut réaliser\n" +
+            "!list : Junior te donne le lien de son instagram");
+    } else if (command === "add") {
+        console.log(message)
+
+
+
+        message.delete()
+    } else if (command === "list") {
+        console.log(message)
+    } else {
         message.reply("Tu sais lire batard !!! \n\nTape !command")
     }
 });
