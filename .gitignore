@@ -1,6 +1,7 @@
 # me
 /.idea
 package-lock.json
+test.js
 
 # Logs
 logs

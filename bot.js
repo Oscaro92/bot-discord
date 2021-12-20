@@ -1,8 +1,9 @@
 const dotenv = require("dotenv").config();
 const { Client, Intents } = require('discord.js');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
-const {isEmpty, add} = require('./function');
 const prefix = "!";
+
+require("./function")()
 
 client.on("message", function(message) { //fonction de base
     if (message.author.bot) return;
@@ -34,7 +35,7 @@ client.on("message", function(message) { //fonction de base
 client.on("message", function (message){ //
     if (message.author.bot) return;
     if (!message.content.startsWith(prefix)) return;
-    if (message.channel.id != "920005239157981194") return;
+    if (message.channel.id != "922563395968974898") return;
 
     const commandBody = message.content.slice(prefix.length);
     const args = commandBody.split(' ');
@@ -42,14 +43,25 @@ client.on("message", function (message){ //
 
     if (command === "command") {
         message.reply("**Liste des commandes :** \n\n" +
-            "!add : Liste les tâches que junior peut réaliser\n" +
-            "!list : Junior te donne le lien de son instagram");
+            "!findSerie : Junior te trouve une liste de série ou une série au hasard\n" +
+            "!findMovie : Junior te trouve une liste de film ou un film au hasard");
     } else if (command === "add") {
-        console.log(message)
 
+        //message.send('')
 
+/*        message.reply('Test en cours ...');
 
-        message.delete()
+        message.channel.awaitMessages(m => m.author.id === message.author.id,
+            { max: 1, time: 60000 }).then(collected => {
+                console.log(collected);
+
+        }).catch(() => {
+            message.reply('Pas de réponse commande annulée !');
+        });*/
+
+        generatorMovSer("Drama", "movie", true, function (rtr){
+            console.log(rtr)
+        });
     } else if (command === "list") {
         console.log(message)
     } else {
