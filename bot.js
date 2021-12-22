@@ -39,7 +39,7 @@ client.on("message", function (message) {
 client.on("message", function (message) {
     if (message.author.bot) return;
     if (!message.content.startsWith(prefix)) return;
-    if (message.channel.id != "922563395968974898") return;
+    if (message.channel.id != "919986309102174250") return;
 
     const commandBody = message.content.slice(prefix.length);
     const args = commandBody.split(' ');
