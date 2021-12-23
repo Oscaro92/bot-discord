@@ -48,14 +48,14 @@ client.on("message", function (message) {
     if (command === "command") {
         message.reply("**Liste des commandes :** \n\n" +
             "!list-genre : Junior te liste tout les genres de film/série possible\n" +
-            "!random-watch : Junior te trouve un film aléatoirement sous sa patte\n" +
+            "!random-watch : Junior te trouve un film ou une série aléatoirement sous sa patte\n" +
             "!next-movies : Junior te donne les prochaines sorties de film");
     } else if (command === "list-genre") {
         listGenre(function (rtr) {
             message.reply("La liste des genres : \n\n" + rtr);
         })
     } else if (command === "random-watch") {
-        message.reply("Tape #movie pour voir bah un film et tape #serie pour avoir une série.");
+        message.reply("Tape #movie pour avoir un film et tape #serie bah pour avoir une série.");
 
         message.channel.awaitMessages(m => m.author.id === message.author.id, {max: 1, time: 30000})
             .then(collected => {
@@ -121,7 +121,7 @@ client.on("message", function (message) {
                 infos.forEach(info => {
                     message.reply("Titre : " + info.title + "\n" +
                         "Date de sortie : " + info.release + "\n" +
-                        "Info : https://www.imdb.com/title/"+info.imdb_id)
+                        "Info : https://www.imdb.com/title/" + info.imdb_id)
                 });
             } else {
                 message.reply("Oups j'étais pas concentré ! ")
@@ -129,6 +129,36 @@ client.on("message", function (message) {
         });
     } else {
         message.reply("Tu sais lire batard !!! \n\nTape !command")
+    }
+});
+
+
+/****************************Salon Vin**********************************/
+client.on("message", function (message) {
+    //https://airtable.com/shrpVWKLxOTl0XWqk
+
+
+});
+
+
+/****************************Target Junior**********************************/
+client.on("message", function (message) {
+    if (message.author.bot) return;
+
+    let target = message.mentions.roles;
+    let targetRole = "";
+    target.map(info => {
+        targetRole = info.name;
+    });
+
+    target = message.mentions.members;
+    let targetJu = "";
+    target.map(info => {
+        targetJu = info.user.username;
+    });
+
+    if (targetRole === "Junior" || targetJu === "JUNIOR") {
+        message.reply("Non !")
     }
 });
 
