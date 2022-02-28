@@ -30,17 +30,16 @@ module.exports = function () {
         callback(listGenre.includes(genre));
     }
     this.randomMovSer = function (genre, type, callback) {
+        const url = 'http://47.254.174.28/' + type + '/byGen/' + genre + '/'
         const options = {
             method: 'GET',
-            url: 'http://47.254.174.28/' + type + '/byGen/' + genre + '/',
+            url: url,
             qs: {page_size: 100}
         };
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
 
             const data = JSON.parse(body);
-            let url = data.next.split("?");
-            url = url[0];
             const count = data.count;
             const nbPage = Math.ceil(count / 100);
             const page = Math.floor(Math.random() * nbPage);
@@ -82,7 +81,7 @@ module.exports = function () {
             if (error) throw new Error(error);
 
             const data = JSON.parse(body);
-
+            console.log(data);
             const json =
                 {
                     error: true,

@@ -4,7 +4,10 @@ const client = new Client({intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_M
 const prefix = "!";
 const prefixBis = "#";
 
-require("./functionHall")()
+require("./functionHall")();
+require('./functionBeer')();
+
+//922563395968974898 <= Channel test-bot
 
 /****************************Salon Junior**********************************/
 client.on("message", function (message) {
@@ -118,26 +121,207 @@ client.on("message", function (message) {
             if (rtr.error) {
                 let infos = rtr.infos;
 
-                infos.forEach(info => {
-                    message.reply("Titre : " + info.title + "\n" +
-                        "Date de sortie : " + info.release + "\n" +
-                        "Info : https://www.imdb.com/title/" + info.imdb_id)
-                });
+                if (!isEmpty(rtr.infos)) {
+                    infos.forEach(info => {
+                        message.reply("Titre : " + info.title + "\n" +
+                            "Date de sortie : " + info.release + "\n" +
+                            "Info : https://www.imdb.com/title/" + info.imdb_id);
+                    });
+                } else {
+                    message.reply("Oups ... J'ai rien trouvé ...");
+                }
             } else {
-                message.reply("Oups j'étais pas concentré ! ")
+                message.reply("Oups j'étais pas concentré ! ");
             }
         });
     } else {
-        message.reply("Tu sais lire batard !!! \n\nTape !command")
+        message.reply("Tu sais lire batard !!! \n\nTape !command");
     }
 });
 
 
-/****************************Salon Vin**********************************/
+/****************************Salon Bière**********************************/
 client.on("message", function (message) {
-    //https://airtable.com/shrpVWKLxOTl0XWqk
+    if (message.author.bot) return;
+    if (!message.content.startsWith(prefix)) return;
+    if (message.channel.id != "947959865412812870") return;
 
+    const commandBody = message.content.slice(prefix.length);
+    const args = commandBody.split(' ');
+    const command = args.shift().toLowerCase();
 
+    const Airtable = require('airtable');
+    const base = new Airtable({apiKey: process.env.AIRTABLE_TOKEN}).base('app8thzBYysgqeDyd');
+
+    if (command === "command") {
+        message.reply("**Liste des commandes :** \n\n" +
+            "!list-color : Liste les différentes couleurs de bières\n" +
+            "!list-type : Liste les différents style de bières\n" +
+            "!list-beer : Junior te liste toutes les 3 dernières bières ajoutées dans le catalogue\n" +
+            "!random-beer : Junior te trouve une bière aléatoirement sous sa patte\n" +
+            "!beer-by-color : Junior te liste les bières par couleur\n" +
+            "!beer-by-type : Junior te liste des bières par style\n" +
+            "!beer-by-rating : Junior te liste sa meilleure sélection de bière");
+    } else if (command === "list-color") {
+        message.reply("La liste des couleurs de bières : Blanche, Blonde, Ambrée, Brune, Noir");
+    } else if (command === "list-type") {
+        message.reply("La liste des styles de bières : Pale Ale, IPA, Double IPA, Berliner, Lager, Triple, Quadriple, Weissbier, Bière de blé, Bière d'abbaye, Pils, Lambics");
+    } else if (command === "list-beer") {
+        base('Table 1').select({
+            sort: [{field: "Ajout", direction: "desc"}],
+            maxRecords: 3,
+            view: "Grid view"
+        }).eachPage(function page(records, fetchNextPage) {
+            message.reply("Les 3 dernières pépites sont les suivantes : \n\n");
+            records.forEach(function (record) {
+                const infos = record.fields;
+                const channel = client.channels.cache.get('922563395968974898');
+                channel.send("Nom de la bière : " + infos.Nom +
+                    "\nNom de la brasserie : " + infos.Brasserie +
+                    "\nCouleur de la bière : " + infos.Couleur +
+                    "\nStyle de bière : " + infos.Style +
+                    "\nNote attribuée par Junior : " + infos.Note + "/5" +
+                    "\n" + infos.Photo);
+            });
+            fetchNextPage();
+        }, function done(err) {
+            if (err) {
+                message.reply("Oups j'étais pas concentré ! ")
+            }
+        });
+    } else if (command === "random-beer") {
+        base('Table 1').select({
+            view: "Grid view"
+        }).eachPage(function page(records, fetchNextPage) {
+            const record = records[Math.floor(Math.random() * records.length)];
+            const infos = record.fields;
+            message.reply("La bière aléatoirement trouvée est : \n\n" +
+                "Nom de la bière : " + infos.Nom +
+                "\nNom de la brasserie : " + infos.Brasserie +
+                "\nCouleur de la bière : " + infos.Couleur +
+                "\nStyle de bière : " + infos.Style +
+                "\nNote attribuée par Junior : " + infos.Note + "/5" +
+                "\n" + infos.Photo);
+        }, function done(err) {
+            if (err) {
+                message.reply("Oups j'étais pas concentré ! ");
+            }
+        });
+    } else if (command === "beer-by-color") {
+        message.reply("Tape #Color pour choisir ta couleur");
+
+        message.channel.awaitMessages(m => m.author.id === message.author.id, {max: 1, time: 30000})
+            .then(collected => {
+                let res1 = "";
+                collected.map(collect => {
+                    res1 = collect;
+                });
+                const commandBody = res1.content.slice(prefixBis.length);
+                const args = commandBody.split(' ');
+                const command = args.shift();
+                const tempo = removeChara(command, " ", "", 20);
+                let color = [tempo];
+
+                base('Table 1').select({
+                    maxRecords: 100,
+                    pageSize: 100,
+                    filterByFormula: "({Couleur} = '" + color + "')",
+                    view: "Grid view"
+                }).eachPage(function page(records, fetchNextPage) {
+                    console.log(records);
+                    message.reply("Je t'ai trouvé ca mon pote :  \n\n");
+                    records.forEach(function (record) {
+                        const infos = record.fields;
+                        const channel = client.channels.cache.get('922563395968974898');
+                        channel.send("Nom de la bière : " + infos.Nom +
+                            "\nNom de la brasserie : " + infos.Brasserie +
+                            "\nCouleur de la bière : " + infos.Couleur +
+                            "\nStyle de bière : " + infos.Style +
+                            "\nNote attribuée par Junior : " + infos.Note + "/5" +
+                            "\n" + infos.Photo);
+                    });
+                    fetchNextPage();
+                }, function done(err) {
+                    if (err) {
+                        console.log(err);
+                        message.reply("Oups j'étais pas concentré ! ");
+                    }
+                });
+            })
+            .catch(() => {
+                message.reply('Requête annulé puisque tu mets ta vie ...');
+            });
+    } else if (command === "beer-by-type") {
+        message.reply("Tape #Type pour choisir ton style de bière");
+
+        message.channel.awaitMessages(m => m.author.id === message.author.id, {max: 1, time: 30000})
+            .then(collected => {
+                let res1 = "";
+                collected.map(collect => {
+                    res1 = collect;
+                });
+                const commandBody = res1.content.slice(prefixBis.length);
+                const args = commandBody.split(' ');
+                const command = args.shift();
+                const tempo = removeChara(command, " ", "", 20);
+                let type = [tempo];
+
+                base('Table 1').select({
+                    maxRecords: 100,
+                    pageSize: 100,
+                    filterByFormula: "({Style} = '" + type + "')",
+                    view: "Grid view"
+                }).eachPage(function page(records, fetchNextPage) {
+                    message.reply("Je t'ai trouvé ca mon pote :  \n\n");
+                    records.forEach(function (record) {
+                        const infos = record.fields;
+                        const channel = client.channels.cache.get('922563395968974898');
+                        channel.send("Nom de la bière : " + infos.Nom +
+                            "\nNom de la brasserie : " + infos.Brasserie +
+                            "\nCouleur de la bière : " + infos.Couleur +
+                            "\nStyle de bière : " + infos.Style +
+                            "\nNote attribuée par Junior : " + infos.Note + "/5" +
+                            "\n" + infos.Photo);
+                    });
+                    fetchNextPage();
+                }, function done(err) {
+                    if (err) {
+                        console.log(err);
+                        message.reply("Oups j'étais pas concentré ! ");
+                    }
+                });
+            })
+            .catch(() => {
+                message.reply('Requête annulé puisque tu mets ta vie ...');
+            });
+    } else if (command === "beer-by-rating") {
+        base('Table 1').select({
+            maxRecords: 100,
+            pageSize: 100,
+            filterByFormula: "({Note} = '5')",
+            view: "Grid view"
+        }).eachPage(function page(records, fetchNextPage) {
+            message.reply("J'ai ca en stock mon pote à la compote :  \n\n");
+            records.forEach(function (record) {
+                const infos = record.fields;
+                const channel = client.channels.cache.get('922563395968974898');
+                channel.send("Nom de la bière : " + infos.Nom +
+                    "\nNom de la brasserie : " + infos.Brasserie +
+                    "\nCouleur de la bière : " + infos.Couleur +
+                    "\nStyle de bière : " + infos.Style +
+                    "\nNote attribuée par Junior : " + infos.Note + "/5" +
+                    "\n" + infos.Photo);
+            });
+            fetchNextPage();
+        }, function done(err) {
+            if (err) {
+                console.log(err);
+                message.reply("Oups j'étais pas concentré ! ");
+            }
+        });
+    } else {
+        message.reply("Tu sais lire batard !!! \n\nTape !command");
+    }
 });
 
 
@@ -161,5 +345,6 @@ client.on("message", function (message) {
         message.reply("Non !")
     }
 });
+
 
 client.login(process.env.BOT_TOKEN);
